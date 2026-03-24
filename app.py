@@ -824,12 +824,13 @@ def admin_logout():
 def admin_dashboard():
     db = get_database()
     stats = {
-        'products_count': db.execute("SELECT COUNT(*) FROM products").fetchone()[0],
-        'active_products': db.execute("SELECT COUNT(*) FROM products WHERE is_active = 1").fetchone()[0],
-        'orders_count': db.execute("SELECT COUNT(*) FROM orders").fetchone()[0],
-        'new_orders': db.execute("SELECT COUNT(*) FROM orders WHERE status = 'new'").fetchone()[0],
-        'total_revenue': db.execute("SELECT COALESCE(SUM(total_amount), 0) FROM orders").fetchone()[0],
-        'categories_count': db.execute("SELECT COUNT(*) FROM categories").fetchone()[0],
+        'products': db.execute("SELECT COUNT(*) FROM products").fetchone()[0],
+        'new_products': db.execute("SELECT COUNT(*) FROM products WHERE is_new = 1").fetchone()[0],
+        'orders': db.execute("SELECT COUNT(*) FROM orders").fetchone()[0],
+        'pending_orders': db.execute("SELECT COUNT(*) FROM orders WHERE status = 'new'").fetchone()[0],
+        'revenue': db.execute("SELECT COALESCE(SUM(total_amount), 0) FROM orders").fetchone()[0],
+        'views': db.execute("SELECT COALESCE(SUM(views_count), 0) FROM products").fetchone()[0],
+        'categories': db.execute("SELECT COUNT(*) FROM categories").fetchone()[0],
     }
     recent_orders = db.execute(
         "SELECT * FROM orders ORDER BY created_at DESC LIMIT 10"
