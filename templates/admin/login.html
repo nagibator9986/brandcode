@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — Админ-панель BRANDCODE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        ::selection { background: rgba(212, 168, 83, 0.3); color: #fff; }
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #d4a853, #e0bc6a, #c8a04a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        input:focus { outline: none; border-color: #d4a853 !important; box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.2); }
+    </style>
+</head>
+<body class="bg-[#0a0a0a] text-white min-h-screen flex items-center justify-center font-sans antialiased">
+    <!-- Background decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d4a853]/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-[#d4a853]/3 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="w-full max-w-md mx-4 relative animate-fade-in">
+        <!-- Logo -->
+        <div class="text-center mb-10">
+            <a href="/" class="inline-block">
+                <span class="text-3xl font-black tracking-[0.3em] uppercase">
+                    <span class="text-gold-gradient">BRAND</span><span class="text-white">CODE</span>
+                </span>
+            </a>
+            <p class="text-gray-500 text-sm mt-3 tracking-wider uppercase">Панель управления</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-[#1a1a1a] rounded-2xl p-8 lg:p-10 border border-white/5 shadow-2xl">
+            <h2 class="text-xl font-bold mb-6">Вход в систему</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="mb-6 px-4 py-3 rounded-lg text-sm
+                {% if category == 'error' %}bg-red-500/10 border border-red-500/20 text-red-400
+                {% else %}bg-[#d4a853]/10 border border-[#d4a853]/20 text-[#d4a853]{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form action="/admin/login" method="POST" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Имя пользователя</label>
+                    <input type="text" name="username" required autofocus placeholder="admin"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 text-sm transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Пароль</label>
+                    <input type="password" name="password" required placeholder="Введите пароль"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 text-sm transition-all">
+                </div>
+                <button type="submit"
+                        class="w-full bg-[#d4a853] hover:bg-[#c8a04a] text-black font-semibold py-3 rounded-lg transition-all duration-300 text-sm uppercase tracking-wider">
+                    Войти
+                </button>
+            </form>
+        </div>
+
+        <!-- Back to site -->
+        <div class="text-center mt-6">
+            <a href="/" class="text-gray-600 hover:text-[#d4a853] text-sm transition-colors">
+                &larr; Вернуться на сайт
+            </a>
+        </div>
+    </div>
+</body>
+</html>

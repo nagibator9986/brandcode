@@ -1,0 +1,525 @@
+/* =====================================================
+   BRANDCODE - Custom CSS
+   Luxury Streetwear Store
+   Complements Tailwind CSS
+   ===================================================== */
+
+/* =========================================================
+   Custom Scrollbar (Dark, Thin)
+   ========================================================= */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d4a853;
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+}
+
+/* =========================================================
+   Selection Color (Gold)
+   ========================================================= */
+::selection {
+    background: rgba(212, 168, 83, 0.3);
+    color: #fff;
+}
+
+::-moz-selection {
+    background: rgba(212, 168, 83, 0.3);
+    color: #fff;
+}
+
+/* =========================================================
+   Animations
+   ========================================================= */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes pulseGold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0.4); }
+    50% { box-shadow: 0 0 20px 5px rgba(212, 168, 83, 0.1); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-slide-down {
+    animation: slideDown 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+    animation: spin 8s linear infinite;
+}
+
+/* =========================================================
+   Glass Morphism
+   ========================================================= */
+.glass {
+    background: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-dark {
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* =========================================================
+   Gold Gradient Text
+   ========================================================= */
+.text-gold-gradient {
+    background: linear-gradient(135deg, #d4a853, #e0bc6a, #c8a04a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-gold-gradient-alt {
+    background: linear-gradient(90deg, #c8a04a, #e0bc6a, #d4a853, #e0bc6a, #c8a04a);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+}
+
+/* =========================================================
+   Product Card Hover Effects
+   ========================================================= */
+.product-card {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.08);
+}
+
+.product-image {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.product-overlay {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.product-card:hover .product-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.product-actions {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease 0.1s;
+}
+
+/* =========================================================
+   Image Zoom on Hover
+   ========================================================= */
+.image-zoom {
+    overflow: hidden;
+}
+
+.image-zoom img {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-zoom:hover img {
+    transform: scale(1.15);
+}
+
+/* =========================================================
+   Custom Range Slider (Dark)
+   ========================================================= */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #d4a853;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(212, 168, 83, 0.3);
+    transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(212, 168, 83, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #d4a853;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px rgba(212, 168, 83, 0.3);
+}
+
+/* =========================================================
+   Toast Notification Styles
+   ========================================================= */
+.toast {
+    animation: slideUp 0.4s ease-out forwards;
+}
+
+.toast-exit {
+    animation: fadeOut 0.4s ease-out forwards;
+}
+
+/* =========================================================
+   Video Modal Overlay
+   ========================================================= */
+.video-modal-overlay {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.video-modal-content {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+/* =========================================================
+   Skeleton Loading Placeholders
+   ========================================================= */
+.skeleton {
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+.skeleton-text {
+    height: 14px;
+    margin-bottom: 8px;
+}
+
+.skeleton-text:last-child {
+    width: 60%;
+}
+
+.skeleton-image {
+    aspect-ratio: 1;
+    border-radius: 12px;
+}
+
+.skeleton-card {
+    padding: 16px;
+    border-radius: 16px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* =========================================================
+   Shimmer Loading Effect
+   ========================================================= */
+.shimmer {
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* =========================================================
+   Smooth Page Transitions
+   ========================================================= */
+.page-enter {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.page-leave {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* =========================================================
+   Badge Pulse
+   ========================================================= */
+.badge-pulse {
+    animation: pulseGold 2s ease-in-out infinite;
+}
+
+/* =========================================================
+   Mobile Menu Animation
+   ========================================================= */
+.mobile-menu-enter {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+/* =========================================================
+   Hide Scrollbar for Horizontal Scroll
+   ========================================================= */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* =========================================================
+   Input Focus Glow
+   ========================================================= */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #d4a853 !important;
+    box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.2);
+}
+
+/* =========================================================
+   Checkbox & Radio Custom Styles
+   ========================================================= */
+input[type="checkbox"] {
+    accent-color: #d4a853;
+}
+
+input[type="radio"] {
+    accent-color: #d4a853;
+}
+
+/* =========================================================
+   Smooth Interactive Transitions
+   ========================================================= */
+a, button, input, select, textarea {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================================
+   Custom Button Hover Glow
+   ========================================================= */
+.btn-gold-glow:hover {
+    box-shadow: 0 0 30px rgba(212, 168, 83, 0.3);
+}
+
+/* =========================================================
+   Gradient Borders
+   ========================================================= */
+.border-gold-gradient {
+    border: 1px solid;
+    border-image: linear-gradient(135deg, #d4a853, #e0bc6a, #c8a04a) 1;
+}
+
+/* =========================================================
+   Text Clamp (Line Clamping)
+   ========================================================= */
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* =========================================================
+   Loading Spinner
+   ========================================================= */
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(212, 168, 83, 0.2);
+    border-top-color: #d4a853;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.spinner-lg {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+}
+
+/* =========================================================
+   Sale Badge
+   ========================================================= */
+.sale-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+}
+
+.new-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
+
+/* =========================================================
+   Aspect Ratios for Product Images
+   ========================================================= */
+.aspect-product {
+    aspect-ratio: 3 / 4;
+}
+
+.aspect-banner {
+    aspect-ratio: 16 / 5;
+}
+
+/* =========================================================
+   Responsive Typography
+   ========================================================= */
+@media (max-width: 640px) {
+    .text-responsive-xl {
+        font-size: 1.5rem;
+    }
+    .text-responsive-2xl {
+        font-size: 1.75rem;
+    }
+    .text-responsive-3xl {
+        font-size: 2rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .text-responsive-xl {
+        font-size: 2rem;
+    }
+    .text-responsive-2xl {
+        font-size: 2.5rem;
+    }
+    .text-responsive-3xl {
+        font-size: 3rem;
+    }
+}
+
+/* =========================================================
+   Print Styles
+   ========================================================= */
+@media print {
+    nav, footer, .toast, #backToTop, .no-print {
+        display: none !important;
+    }
+    body {
+        background: white;
+        color: black;
+    }
+}

@@ -1,0 +1,161 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_title %}Баннеры{% endblock %}
+{% block admin_content %}
+
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h2 class="text-2xl font-bold">Управление баннерами</h2>
+        <p class="text-gray-500 text-sm mt-1">Баннеры отображаются на главной странице</p>
+    </div>
+    <button onclick="toggleBannerForm()" id="addBannerBtn"
+            class="inline-flex items-center space-x-2 bg-[#d4a853] hover:bg-[#c8a04a] text-black font-semibold px-5 py-2.5 rounded-lg transition-all text-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span>Добавить баннер</span>
+    </button>
+</div>
+
+<!-- Add/Edit Banner Form -->
+<div id="bannerForm" class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6 mb-6 hidden">
+    <h3 class="text-lg font-bold mb-5" id="bannerFormTitle">Новый баннер</h3>
+    <form action="/admin/banners/add" method="POST" enctype="multipart/form-data" class="space-y-5">
+        <input type="hidden" name="banner_id" id="editBannerId" value="">
+        <div class="grid md:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Заголовок</label>
+                <input type="text" name="title" id="bannerTitle" placeholder="Новая коллекция"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Ссылка</label>
+                <input type="text" name="link" id="bannerLink" placeholder="/catalog?category=..." value="/catalog"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Подзаголовок</label>
+            <input type="text" name="subtitle" id="bannerSubtitle" placeholder="Описание баннера"
+                   class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Изображение</label>
+            <input type="file" name="image" accept="image/*"
+                   class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#d4a853]/10 file:text-[#d4a853] hover:file:bg-[#d4a853]/20">
+            <p class="text-xs text-gray-600 mt-1">Рекомендуемый размер: 1920x600px</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Порядок</label>
+                <input type="number" name="sort_order" id="bannerSortOrder" value="0"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm">
+            </div>
+            <div class="flex items-end">
+                <label class="flex items-center space-x-3 p-3 rounded-lg bg-[#111] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
+                    <input type="checkbox" name="is_active" value="1" checked id="bannerIsActive"
+                           class="w-4 h-4 rounded bg-[#111] border-white/20 text-[#d4a853] focus:ring-[#d4a853] focus:ring-offset-0">
+                    <span class="text-sm text-gray-300">Активен</span>
+                </label>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <button type="submit" class="bg-[#d4a853] hover:bg-[#c8a04a] text-black font-semibold px-6 py-2.5 rounded-lg transition-all text-sm">
+                Сохранить
+            </button>
+            <button type="button" onclick="toggleBannerForm()" class="bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-2.5 rounded-lg transition-all text-sm">
+                Отмена
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Banners List -->
+<div class="grid gap-4">
+    {% if banners %}
+    {% for banner in banners %}
+    <div class="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden flex flex-col sm:flex-row">
+        <!-- Image Preview -->
+        <div class="sm:w-48 h-32 sm:h-auto bg-[#111] flex-shrink-0">
+            {% if banner.image %}
+            <img src="/uploads/{{ banner.image }}" alt="{{ banner.title }}" class="w-full h-full object-cover">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-gray-700">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            {% endif %}
+        </div>
+        <!-- Info -->
+        <div class="flex-1 p-5 flex items-center justify-between">
+            <div>
+                <h4 class="font-semibold text-white">{{ banner.title | default('Без заголовка') }}</h4>
+                {% if banner.subtitle %}
+                <p class="text-gray-500 text-sm mt-1">{{ banner.subtitle }}</p>
+                {% endif %}
+                <div class="flex items-center space-x-3 mt-2">
+                    {% if banner.is_active %}
+                    <span class="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded border border-green-500/20">Активен</span>
+                    {% else %}
+                    <span class="text-xs bg-gray-500/10 text-gray-500 px-2 py-0.5 rounded border border-gray-500/20">Скрыт</span>
+                    {% endif %}
+                    <span class="text-xs text-gray-600">Порядок: {{ banner.sort_order | default(0) }}</span>
+                    {% if banner.link %}
+                    <span class="text-xs text-gray-600">{{ banner.link }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 ml-4">
+                <button onclick="editBanner({id: {{ banner.id }}, title: '{{ banner.title|e }}', subtitle: '{{ banner.subtitle|e }}', image_url: '{{ banner.image_url|e }}', link: '{{ banner.link|e }}', is_active: {{ banner.is_active }}})" class="p-2 text-gray-400 hover:text-[#d4a853] hover:bg-[#d4a853]/10 rounded-lg transition-all" title="Редактировать">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </button>
+                <form action="/admin/banners/delete/{{ banner.id }}" method="POST" onsubmit="return confirm('Удалить баннер?')">
+                    <button type="submit" class="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all" title="Удалить">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-12 text-center">
+        <svg class="w-12 h-12 mx-auto mb-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="text-gray-600">Баннеров пока нет</p>
+        <button onclick="toggleBannerForm()" class="text-[#d4a853] text-sm hover:underline mt-2">Добавить первый баннер</button>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+function toggleBannerForm() {
+    const form = document.getElementById('bannerForm');
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+        document.getElementById('bannerTitle').focus();
+    }
+}
+
+function editBanner(banner) {
+    document.getElementById('editBannerId').value = banner.id;
+    document.getElementById('bannerTitle').value = banner.title || '';
+    document.getElementById('bannerSubtitle').value = banner.subtitle || '';
+    document.getElementById('bannerLink').value = banner.link || '';
+    document.getElementById('bannerSortOrder').value = banner.sort_order || 0;
+    document.getElementById('bannerIsActive').checked = banner.is_active;
+    document.getElementById('bannerFormTitle').textContent = 'Редактировать баннер';
+    const form = document.getElementById('bannerForm');
+    form.classList.remove('hidden');
+    form.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

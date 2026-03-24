@@ -1,0 +1,355 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_title %}{% if product %}Редактировать товар{% else %}Новый товар{% endif %}{% endblock %}
+{% block admin_content %}
+
+<div class="max-w-4xl">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h2 class="text-2xl font-bold">{% if product %}Редактировать товар{% else %}Новый товар{% endif %}</h2>
+            <p class="text-gray-500 text-sm mt-1">{% if product %}ID: {{ product.id }}{% else %}Заполните информацию о товаре{% endif %}</p>
+        </div>
+        <a href="/admin/products" class="text-gray-400 hover:text-white text-sm">&larr; К списку товаров</a>
+    </div>
+
+    <form action="{% if product %}/admin/products/edit/{{ product.id }}{% else %}/admin/products/add{% endif %}" method="POST" enctype="multipart/form-data" class="space-y-8">
+
+        <!-- Basic Info -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <h3 class="text-lg font-bold mb-5">Основная информация</h3>
+            <div class="grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Название <span class="text-red-400">*</span></label>
+                    <input type="text" name="name" id="productName" required value="{{ product.name if product else '' }}" placeholder="Nike Air Max 90"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Slug (URL)</label>
+                    <input type="text" name="slug" id="productSlug" value="{{ product.slug if product else '' }}" placeholder="nike-air-max-90"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <p class="text-xs text-gray-600 mt-1">Генерируется автоматически из названия</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Категория <span class="text-red-400">*</span></label>
+                    <select name="category_id" required class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm appearance-none">
+                        <option value="">Выберите категорию</option>
+                        {% if categories %}
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Бренд</label>
+                    <select name="brand" class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm appearance-none">
+                        <option value="">Без бренда</option>
+                        {% if brands %}
+                        {% for b in brands %}
+                        <option value="{{ b.name }}" {% if product and product.brand == b.name %}selected{% endif %}>{{ b.name }}</option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Пол</label>
+                    <select name="gender" class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm appearance-none">
+                        <option value="unisex" {% if product and product.gender == 'unisex' %}selected{% endif %}>Унисекс</option>
+                        <option value="men" {% if product and product.gender == 'men' %}selected{% endif %}>Мужское</option>
+                        <option value="women" {% if product and product.gender == 'women' %}selected{% endif %}>Женское</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <h3 class="text-lg font-bold mb-5">Цена</h3>
+            <div class="grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Цена (&#8376;) <span class="text-red-400">*</span></label>
+                    <input type="number" name="price" required min="0" step="100" value="{{ product.price if product else '' }}" placeholder="45000"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Старая цена (&#8376;)</label>
+                    <input type="number" name="old_price" min="0" step="100" value="{{ product.old_price if product and product.old_price else '' }}" placeholder="55000"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <p class="text-xs text-gray-600 mt-1">Укажите для отображения скидки</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <h3 class="text-lg font-bold mb-5">Описание</h3>
+            <textarea name="description" rows="6" placeholder="Подробное описание товара..."
+                      class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 text-sm resize-y">{{ product.description if product else '' }}</textarea>
+        </div>
+
+        <!-- Flags -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <h3 class="text-lg font-bold mb-5">Параметры</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <label class="flex items-center space-x-3 p-3 rounded-lg bg-[#111] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
+                    <input type="checkbox" name="is_active" value="1" {% if not product or product.is_active %}checked{% endif %}
+                           class="w-4 h-4 rounded bg-[#111] border-white/20 text-[#d4a853] focus:ring-[#d4a853] focus:ring-offset-0">
+                    <span class="text-sm text-gray-300">Активен</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 rounded-lg bg-[#111] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
+                    <input type="checkbox" name="is_featured" value="1" {% if product and product.is_featured %}checked{% endif %}
+                           class="w-4 h-4 rounded bg-[#111] border-white/20 text-[#d4a853] focus:ring-[#d4a853] focus:ring-offset-0">
+                    <span class="text-sm text-gray-300">Хит продаж</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 rounded-lg bg-[#111] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
+                    <input type="checkbox" name="is_new" value="1" {% if product and product.is_new %}checked{% endif %}
+                           class="w-4 h-4 rounded bg-[#111] border-white/20 text-[#d4a853] focus:ring-[#d4a853] focus:ring-offset-0">
+                    <span class="text-sm text-gray-300">Новинка</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 rounded-lg bg-[#111] border border-white/5 cursor-pointer hover:border-white/20 transition-all">
+                    <input type="checkbox" name="is_sale" value="1" {% if product and product.is_sale %}checked{% endif %}
+                           class="w-4 h-4 rounded bg-[#111] border-white/20 text-[#d4a853] focus:ring-[#d4a853] focus:ring-offset-0">
+                    <span class="text-sm text-gray-300">Распродажа</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Images -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <h3 class="text-lg font-bold mb-5">Изображения</h3>
+
+            {% if product and images %}
+            <div class="mb-6">
+                <p class="text-sm text-gray-400 mb-3">Текущие изображения:</p>
+                <div id="existingImages" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                    {% for img in images %}
+                    <div class="relative group" data-image="{{ img }}">
+                        <div class="aspect-square rounded-lg overflow-hidden border border-white/10">
+                            <img src="/uploads/{{ img }}" alt="" class="w-full h-full object-cover">
+                        </div>
+                        <button type="button" onclick="removeExistingImage(this, '{{ img }}')"
+                                class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            &times;
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="removed_images" id="removedImages" value="">
+            </div>
+            {% endif %}
+
+            <!-- Upload Area -->
+            <div id="dropZone" class="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-[#d4a853]/30 transition-all cursor-pointer"
+                 onclick="document.getElementById('imageInput').click()">
+                <svg class="w-10 h-10 text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <p class="text-gray-400 text-sm">Перетащите изображения сюда или <span class="text-[#d4a853]">нажмите для выбора</span></p>
+                <p class="text-gray-600 text-xs mt-2">PNG, JPG, WebP. Макс. 5MB каждый файл.</p>
+            </div>
+            <input type="file" id="imageInput" name="images" multiple accept="image/*" class="hidden" onchange="previewImages(this)">
+
+            <!-- Preview -->
+            <div id="imagePreview" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mt-4 hidden"></div>
+        </div>
+
+        <!-- Video -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <h3 class="text-lg font-bold mb-5">Видео</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Ссылка на видео (YouTube / Instagram)</label>
+                    <input type="url" name="video_url" value="{{ product.video_url if product else '' }}" placeholder="https://youtube.com/watch?v=... или https://instagram.com/reel/..."
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                </div>
+                <div class="text-center text-gray-600 text-sm">или</div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Загрузить видеофайл</label>
+                    <input type="file" name="video_file" accept="video/*"
+                           class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#d4a853]/10 file:text-[#d4a853] hover:file:bg-[#d4a853]/20">
+                </div>
+            </div>
+        </div>
+
+        <!-- Sizes -->
+        <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-lg font-bold">Размеры и наличие</h3>
+                <button type="button" onclick="addSizeRow()" class="text-[#d4a853] text-sm hover:underline flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Добавить размер</span>
+                </button>
+            </div>
+            <div id="sizesContainer" class="space-y-3">
+                {% if product and sizes %}
+                {% for size in sizes %}
+                <div class="flex items-center space-x-3 size-row">
+                    <input type="text" name="size_name[]" value="{{ size.size }}" placeholder="Размер (S, M, L, 42...)"
+                           class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <input type="number" name="size_qty[]" value="{{ size.quantity }}" min="0" placeholder="Кол-во"
+                           class="w-28 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <button type="button" onclick="removeSizeRow(this)" class="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+                {% else %}
+                <!-- Default sizes -->
+                <div class="flex items-center space-x-3 size-row">
+                    <input type="text" name="size_name[]" value="S" placeholder="Размер"
+                           class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <input type="number" name="size_qty[]" value="0" min="0" placeholder="Кол-во"
+                           class="w-28 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <button type="button" onclick="removeSizeRow(this)" class="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3 size-row">
+                    <input type="text" name="size_name[]" value="M" placeholder="Размер"
+                           class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <input type="number" name="size_qty[]" value="0" min="0" placeholder="Кол-во"
+                           class="w-28 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <button type="button" onclick="removeSizeRow(this)" class="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3 size-row">
+                    <input type="text" name="size_name[]" value="L" placeholder="Размер"
+                           class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <input type="number" name="size_qty[]" value="0" min="0" placeholder="Кол-во"
+                           class="w-28 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <button type="button" onclick="removeSizeRow(this)" class="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3 size-row">
+                    <input type="text" name="size_name[]" value="XL" placeholder="Размер"
+                           class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <input type="number" name="size_qty[]" value="0" min="0" placeholder="Кол-во"
+                           class="w-28 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+                    <button type="button" onclick="removeSizeRow(this)" class="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-center justify-between">
+            <a href="/admin/products" class="text-gray-400 hover:text-white text-sm">Отмена</a>
+            <button type="submit" class="bg-[#d4a853] hover:bg-[#c8a04a] text-black font-semibold px-8 py-3 rounded-lg transition-all text-sm uppercase tracking-wider">
+                {% if product %}Сохранить изменения{% else %}Создать товар{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+// Auto-generate slug from name
+const nameInput = document.getElementById('productName');
+const slugInput = document.getElementById('productSlug');
+if (nameInput && slugInput) {
+    nameInput.addEventListener('input', function() {
+        if (!slugInput.dataset.manual) {
+            slugInput.value = transliterateSlug(this.value);
+        }
+    });
+    slugInput.addEventListener('input', function() {
+        this.dataset.manual = '1';
+    });
+}
+
+// Image preview
+function previewImages(input) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    if (input.files && input.files.length > 0) {
+        preview.classList.remove('hidden');
+        Array.from(input.files).forEach((file, i) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = '<div class="aspect-square rounded-lg overflow-hidden border border-white/10">' +
+                    '<img src="' + e.target.result + '" class="w-full h-full object-cover">' +
+                    '</div>';
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
+// Drag and drop
+const dropZone = document.getElementById('dropZone');
+const imageInput = document.getElementById('imageInput');
+if (dropZone) {
+    ['dragenter', 'dragover'].forEach(evt => {
+        dropZone.addEventListener(evt, function(e) {
+            e.preventDefault();
+            this.classList.add('border-[#d4a853]/50', 'bg-[#d4a853]/5');
+        });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+        dropZone.addEventListener(evt, function(e) {
+            e.preventDefault();
+            this.classList.remove('border-[#d4a853]/50', 'bg-[#d4a853]/5');
+        });
+    });
+    dropZone.addEventListener('drop', function(e) {
+        imageInput.files = e.dataTransfer.files;
+        previewImages(imageInput);
+    });
+}
+
+// Remove existing image
+function removeExistingImage(btn, filename) {
+    const hiddenInput = document.getElementById('removedImages');
+    const current = hiddenInput.value ? hiddenInput.value.split(',') : [];
+    current.push(filename);
+    hiddenInput.value = current.join(',');
+    btn.closest('[data-image]').remove();
+}
+
+// Size rows
+function addSizeRow() {
+    const container = document.getElementById('sizesContainer');
+    const row = document.createElement('div');
+    row.className = 'flex items-center space-x-3 size-row';
+    row.style.animation = 'fadeIn 0.3s ease-out forwards';
+    row.innerHTML = '<input type="text" name="size_name[]" placeholder="Размер (S, M, L, 42...)" class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">' +
+        '<input type="number" name="size_qty[]" value="0" min="0" placeholder="Кол-во" class="w-28 bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">' +
+        '<button type="button" onclick="removeSizeRow(this)" class="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">' +
+        '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
+        '</button>';
+    container.appendChild(row);
+    row.querySelector('input').focus();
+}
+
+function removeSizeRow(btn) {
+    const row = btn.closest('.size-row');
+    row.style.opacity = '0';
+    row.style.transform = 'translateX(20px)';
+    row.style.transition = 'all 0.3s ease';
+    setTimeout(() => row.remove(), 300);
+}
+</script>
+{% endblock %}

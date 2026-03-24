@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_settings.site_name | default('BRANDCODE') }}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#111111',
+                            700: '#1a1a1a',
+                            600: '#1f1f1f',
+                            500: '#2a2a2a',
+                            400: '#333333',
+                            300: '#444444',
+                        },
+                        gold: {
+                            DEFAULT: '#d4a853',
+                            dark: '#c8a04a',
+                            light: '#e0bc6a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.6s ease-out forwards',
+                        'pulse-gold': 'pulseGold 2s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d4a853; }
+
+        /* Selection */
+        ::selection { background: rgba(212, 168, 83, 0.3); color: #fff; }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(212, 168, 83, 0.1); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-light {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Smooth transitions for all interactive elements */
+        a, button, input, select, textarea {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Product card image zoom */
+        .product-card:hover .product-image {
+            transform: scale(1.08);
+        }
+        .product-image {
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Gold gradient text */
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #d4a853, #e0bc6a, #c8a04a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Shimmer loading */
+        .shimmer {
+            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Notification toast */
+        .toast {
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        /* Hide scrollbar for horizontal scroll */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Mobile menu animation */
+        .mobile-menu-enter { animation: fadeIn 0.3s ease-out forwards; }
+
+        /* Badge pulse */
+        .badge-pulse { animation: pulseGold 2s ease-in-out infinite; }
+
+        /* Input focus */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #d4a853 !important;
+            box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.2);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#0a0a0a] text-white min-h-screen font-sans antialiased">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-[#111]/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+                <!-- Logo -->
+                <a href="/" class="flex items-center space-x-1 group">
+                    <span class="text-xl lg:text-2xl font-black tracking-[0.3em] uppercase">
+                        <span class="text-gold-gradient">BRAND</span><span class="text-white group-hover:text-gold transition-colors duration-300">CODE</span>
+                    </span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden lg:flex items-center space-x-10">
+                    <a href="/catalog" class="text-sm font-medium text-gray-300 hover:text-gold tracking-wider uppercase transition-colors relative group">
+                        Каталог
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="/catalog?sort=newest" class="text-sm font-medium text-gray-300 hover:text-gold tracking-wider uppercase transition-colors relative group">
+                        Новинки
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="/catalog?sale=1" class="text-sm font-medium text-gray-300 hover:text-gold tracking-wider uppercase transition-colors relative group">
+                        Sale
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-red-500 transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="/about" class="text-sm font-medium text-gray-300 hover:text-gold tracking-wider uppercase transition-colors relative group">
+                        О нас
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                </div>
+
+                <!-- Right Side Icons -->
+                <div class="flex items-center space-x-4 lg:space-x-6">
+                    <!-- Search -->
+                    <button id="searchToggle" class="text-gray-400 hover:text-gold transition-colors p-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Wishlist -->
+                    <a href="/wishlist" class="text-gray-400 hover:text-gold transition-colors p-2 relative">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        {% if wishlist_count is defined and wishlist_count > 0 %}
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-gold text-black text-[10px] font-bold rounded-full flex items-center justify-center">{{ wishlist_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Cart -->
+                    <a href="/cart" class="text-gray-400 hover:text-gold transition-colors p-2 relative">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        {% if cart_count is defined and cart_count > 0 %}
+                        <span id="cartBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-gold text-black text-[10px] font-bold rounded-full flex items-center justify-center badge-pulse">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <!-- Mobile Menu Toggle -->
+                    <button id="mobileMenuToggle" class="lg:hidden text-gray-400 hover:text-gold transition-colors p-2">
+                        <div class="w-5 h-4 relative flex flex-col justify-between">
+                            <span id="hamburger1" class="w-full h-px bg-current transition-all duration-300 origin-center"></span>
+                            <span id="hamburger2" class="w-full h-px bg-current transition-all duration-300"></span>
+                            <span id="hamburger3" class="w-full h-px bg-current transition-all duration-300 origin-center"></span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Overlay -->
+        <div id="searchOverlay" class="hidden absolute top-full left-0 right-0 bg-[#111]/95 backdrop-blur-xl border-b border-white/5 p-4">
+            <div class="max-w-3xl mx-auto">
+                <form action="/catalog" method="GET" class="relative">
+                    <input type="text" name="q" placeholder="Поиск товаров..." class="w-full bg-dark-700 border border-white/10 rounded-lg px-5 py-3 text-white placeholder-gray-500 text-lg focus:border-gold">
+                    <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-[#111]/98 backdrop-blur-xl border-b border-white/5">
+            <div class="px-6 py-6 space-y-4">
+                <a href="/catalog" class="block text-lg font-medium text-gray-300 hover:text-gold tracking-wider uppercase py-2 border-b border-white/5">Каталог</a>
+                <a href="/catalog?sort=newest" class="block text-lg font-medium text-gray-300 hover:text-gold tracking-wider uppercase py-2 border-b border-white/5">Новинки</a>
+                <a href="/catalog?sale=1" class="block text-lg font-medium text-gray-300 hover:text-gold tracking-wider uppercase py-2 border-b border-white/5">Sale</a>
+                <a href="/about" class="block text-lg font-medium text-gray-300 hover:text-gold tracking-wider uppercase py-2">О нас</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="fixed top-24 right-4 z-[60] space-y-3 max-w-sm">
+        {% for category, message in messages %}
+        <div class="toast glass rounded-lg px-5 py-4 flex items-center space-x-3 shadow-2xl border border-white/5
+            {% if category == 'success' %}border-l-4 border-l-green-500{% elif category == 'error' %}border-l-4 border-l-red-500{% elif category == 'warning' %}border-l-4 border-l-yellow-500{% else %}border-l-4 border-l-gold{% endif %}">
+            {% if category == 'success' %}
+            <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            {% elif category == 'error' %}
+            <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            {% else %}
+            <svg class="w-5 h-5 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            {% endif %}
+            <span class="text-sm text-gray-200">{{ message }}</span>
+            <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-white ml-auto flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-24 right-4 z-[60] space-y-3 max-w-sm"></div>
+
+    <!-- Main Content -->
+    <main class="pt-16 lg:pt-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#0a0a0a] border-t border-white/5 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-10">
+                <!-- About -->
+                <div class="col-span-2 lg:col-span-1">
+                    <a href="/" class="text-2xl font-black tracking-[0.3em] uppercase mb-4 inline-block">
+                        <span class="text-gold-gradient">BRAND</span><span class="text-white">CODE</span>
+                    </a>
+                    <p class="text-gray-500 text-sm leading-relaxed mt-4">Магазин брендовой одежды и аксессуаров. Только оригинальная продукция от лучших мировых брендов.</p>
+                    <div class="flex space-x-4 mt-6">
+                        {% if site_settings and site_settings.whatsapp_number %}
+                        <a href="https://wa.me/{{ site_settings.whatsapp_number }}" target="_blank" class="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-gray-400 hover:bg-green-600 hover:text-white transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        </a>
+                        {% endif %}
+                        {% if site_settings and site_settings.instagram_account %}
+                        <a href="https://instagram.com/{{ site_settings.instagram_account }}" target="_blank" class="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-gray-400 hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-500 hover:text-white transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        </a>
+                        {% endif %}
+                        {% if site_settings and site_settings.telegram_username %}
+                        <a href="https://t.me/{{ site_settings.telegram_username }}" target="_blank" class="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-gray-400 hover:bg-blue-500 hover:text-white transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Catalog Links -->
+                <div>
+                    <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Каталог</h4>
+                    <ul class="space-y-3">
+                        <li><a href="/catalog?gender=men" class="text-sm text-gray-500 hover:text-gold transition-colors">Мужское</a></li>
+                        <li><a href="/catalog?gender=women" class="text-sm text-gray-500 hover:text-gold transition-colors">Женское</a></li>
+                        <li><a href="/catalog?sort=newest" class="text-sm text-gray-500 hover:text-gold transition-colors">Новинки</a></li>
+                        <li><a href="/catalog?sale=1" class="text-sm text-gray-500 hover:text-gold transition-colors">Sale</a></li>
+                        <li><a href="/catalog" class="text-sm text-gray-500 hover:text-gold transition-colors">Все товары</a></li>
+                    </ul>
+                </div>
+
+                <!-- Info Links -->
+                <div>
+                    <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Информация</h4>
+                    <ul class="space-y-3">
+                        <li><a href="/about" class="text-sm text-gray-500 hover:text-gold transition-colors">О нас</a></li>
+                        <li><a href="/delivery" class="text-sm text-gray-500 hover:text-gold transition-colors">Доставка</a></li>
+                        <li><a href="/payment" class="text-sm text-gray-500 hover:text-gold transition-colors">Оплата</a></li>
+                        <li><a href="/returns" class="text-sm text-gray-500 hover:text-gold transition-colors">Возврат</a></li>
+                        <li><a href="/contacts" class="text-sm text-gray-500 hover:text-gold transition-colors">Контакты</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contacts -->
+                <div>
+                    <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-5">Контакты</h4>
+                    <ul class="space-y-3">
+                        {% if site_settings and site_settings.whatsapp_number %}
+                        <li>
+                            <a href="https://wa.me/{{ site_settings.whatsapp_number }}" target="_blank" class="text-sm text-gray-500 hover:text-green-400 transition-colors flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                <span>WhatsApp</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if site_settings and site_settings.instagram_account %}
+                        <li>
+                            <a href="https://instagram.com/{{ site_settings.instagram_account }}" target="_blank" class="text-sm text-gray-500 hover:text-pink-400 transition-colors flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                <span>Instagram</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if site_settings and site_settings.telegram_username %}
+                        <li>
+                            <a href="https://t.me/{{ site_settings.telegram_username }}" target="_blank" class="text-sm text-gray-500 hover:text-blue-400 transition-colors flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                                <span>Telegram</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Footer -->
+            <div class="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                <p class="text-xs text-gray-600">&copy; {{ current_year | default(2026) }} {{ site_settings.site_name | default('BRANDCODE') }}. Все права защищены.</p>
+                <div class="flex items-center space-x-4">
+                    <!-- Payment Icons -->
+                    <div class="flex items-center space-x-3 text-gray-600">
+                        <span class="text-xs uppercase tracking-wider">Visa</span>
+                        <span class="text-gray-700">|</span>
+                        <span class="text-xs uppercase tracking-wider">Mastercard</span>
+                        <span class="text-gray-700">|</span>
+                        <span class="text-xs uppercase tracking-wider">Kaspi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

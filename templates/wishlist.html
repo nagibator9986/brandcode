@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Избранное — {{ site_settings.site_name | default('BRANDCODE') }}{% endblock %}
+
+{% block content %}
+
+<section class="py-10 px-4">
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Page Header -->
+        <div class="mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tight">Избранное</h1>
+            <div class="flex items-center space-x-2 mt-2">
+                <div class="w-12 h-0.5 bg-gold"></div>
+                {% if products %}
+                <span class="text-sm text-gray-500">{{ products | length }} {{ 'товар' if products | length == 1 else ('товара' if products | length < 5 else 'товаров') }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if not products %}
+        <!-- Empty State -->
+        <div class="text-center py-32">
+            <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-dark-700 flex items-center justify-center">
+                <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-300 mb-3">Список пуст</h3>
+            <p class="text-gray-500 text-sm mb-8">Добавляйте понравившиеся товары в избранное, чтобы не потерять их</p>
+            <a href="/catalog" class="inline-flex items-center px-8 py-4 bg-gold text-black text-sm font-bold uppercase tracking-[0.2em] rounded-lg hover:bg-gold-light transition-all hover:shadow-lg hover:shadow-gold/20">
+                Перейти в каталог
+            </a>
+        </div>
+
+        {% else %}
+        <!-- Product Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {% for product in products %}
+            <div class="product-card group animate-fade-in" style="animation-delay: {{ loop.index0 * 50 }}ms;" id="wishlist-item-{{ product.id }}">
+                <a href="/product/{{ product.slug }}" class="block">
+                    <div class="relative bg-[#1a1a1a] rounded-lg overflow-hidden border border-white/[0.03] hover:border-white/[0.08] transition-all">
+                        <!-- Badges -->
+                        <div class="absolute top-3 left-3 z-10 flex flex-col space-y-2">
+                            {% if product.is_new %}
+                            <span class="px-2.5 py-1 bg-emerald-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">Новинка</span>
+                            {% endif %}
+                            {% if product.old_price and product.old_price > product.price %}
+                            <span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">
+                                -{{ ((product.old_price - product.price) / product.old_price * 100) | int }}%
+                            </span>
+                            {% endif %}
+                            {% if product.is_out_of_stock is defined and product.is_out_of_stock %}
+                            <span class="px-2.5 py-1 bg-gray-800/90 text-gray-400 text-[10px] font-semibold uppercase tracking-wider rounded-sm">Нет в наличии</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Remove from Wishlist -->
+                        <button onclick="event.preventDefault(); event.stopPropagation(); removeFromWishlist({{ product.id }})" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all">
+                            <svg class="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                        </button>
+
+                        <!-- Image -->
+                        <div class="aspect-[3/4] overflow-hidden bg-dark-600 {% if product.is_out_of_stock is defined and product.is_out_of_stock %}opacity-50{% endif %}">
+                            {% if product.images %}
+                            <img src="{{ product.images[0].image_path if product.images else '' }}" alt="{{ product.name }}" class="product-image w-full h-full object-cover" loading="lazy">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-gray-700">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Quick Add to Cart -->
+                        {% if not (product.is_out_of_stock is defined and product.is_out_of_stock) %}
+                        <div class="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                            <a href="/product/{{ product.slug }}" class="block w-full py-2.5 bg-gold/90 backdrop-blur-sm text-black text-xs font-semibold uppercase tracking-wider rounded text-center hover:bg-gold transition-colors">
+                                Подробнее
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                <a href="/product/{{ product.slug }}" class="block mt-3 px-1">
+                    <p class="text-[11px] text-gold/70 uppercase tracking-widest font-medium">{{ product.brand }}</p>
+                    <h3 class="text-sm text-gray-200 font-medium mt-1 truncate group-hover:text-white transition-colors">{{ product.name }}</h3>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if product.old_price and product.old_price > product.price %}
+                        <span class="text-gray-500 line-through text-xs">{{ "{:,.0f}".format(product.old_price) }} ₸</span>
+                        <span class="text-red-400 font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% else %}
+                        <span class="text-white font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function removeFromWishlist(productId) {
+        fetch('/wishlist/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const item = document.getElementById('wishlist-item-' + productId);
+                if (item) {
+                    item.style.opacity = '0';
+                    item.style.transform = 'scale(0.9)';
+                    item.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        item.remove();
+                        // Check if empty
+                        const grid = document.querySelector('.grid');
+                        if (grid && grid.children.length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+                showToast('Удалено из избранного', 'success');
+            } else {
+                showToast(data.message || 'Ошибка', 'error');
+            }
+        })
+        .catch(() => showToast('Произошла ошибка', 'error'));
+    }
+</script>
+{% endblock %}

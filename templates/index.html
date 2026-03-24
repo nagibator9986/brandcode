@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block title %}{{ site_settings.site_name | default('BRANDCODE') }} — Оригинальная брендовая одежда{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Animated Background Grid -->
+    <div class="absolute inset-0 opacity-[0.03]">
+        <div class="absolute inset-0" style="background-image: linear-gradient(rgba(212,168,83,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(212,168,83,0.3) 1px, transparent 1px); background-size: 60px 60px;"></div>
+    </div>
+    <!-- Gradient Overlays -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"></div>
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/5 rounded-full blur-[120px] animate-float"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gold/3 rounded-full blur-[100px] animate-float" style="animation-delay: -3s;"></div>
+
+    <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+        <div class="animate-fade-in">
+            <p class="text-gold/60 text-sm tracking-[0.5em] uppercase mb-6 font-light">Оригинал • Стиль • Качество</p>
+            <h1 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-[0.15em] uppercase leading-none mb-6">
+                <span class="text-gold-gradient">BRAND</span><span class="text-white">CODE</span>
+            </h1>
+            <p class="text-gray-400 text-lg md:text-xl font-light tracking-wider mb-12">
+                Брендовая одежда &bull; Мировые бренды &bull; Доставка по KZ
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="/catalog" class="group relative px-10 py-4 bg-gold text-black font-semibold text-sm uppercase tracking-widest rounded-sm overflow-hidden transition-all hover:bg-gold-light hover:shadow-lg hover:shadow-gold/20">
+                    <span class="relative z-10">Каталог</span>
+                </a>
+                <a href="/catalog?sort=newest" class="px-10 py-4 border border-white/20 text-white font-semibold text-sm uppercase tracking-widest rounded-sm hover:border-gold hover:text-gold transition-all">
+                    Новинки
+                </a>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+{% if featured_products %}
+<section class="py-20 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Популярное</h2>
+                <div class="w-16 h-0.5 bg-gold mt-3"></div>
+            </div>
+            <a href="/catalog?sort=popular" class="text-sm text-gray-500 hover:text-gold transition-colors tracking-wider uppercase flex items-center space-x-2">
+                <span>Все товары</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
+
+        <div class="flex space-x-5 overflow-x-auto hide-scrollbar pb-4">
+            {% for product in featured_products %}
+            <a href="/product/{{ product.slug }}" class="product-card group flex-shrink-0 w-64 sm:w-72">
+                <div class="relative bg-[#1a1a1a] rounded-lg overflow-hidden">
+                    <!-- Badges -->
+                    <div class="absolute top-3 left-3 z-10 flex flex-col space-y-2">
+                        {% if product.is_new %}
+                        <span class="px-2.5 py-1 bg-emerald-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">Новинка</span>
+                        {% endif %}
+                        {% if product.old_price and product.old_price > product.price %}
+                        <span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">Sale</span>
+                        {% endif %}
+                    </div>
+                    <!-- Image -->
+                    <div class="aspect-[3/4] overflow-hidden bg-dark-600">
+                        {% if product.images %}
+                        <img src="{{ product.images[0].image_path if product.images else '' }}" alt="{{ product.name }}" class="product-image w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-700">
+                            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3 px-1">
+                    <p class="text-[11px] text-gold/70 uppercase tracking-widest font-medium">{{ product.brand }}</p>
+                    <h3 class="text-sm text-gray-200 font-medium mt-1 truncate group-hover:text-white transition-colors">{{ product.name }}</h3>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if product.old_price and product.old_price > product.price %}
+                        <span class="text-gray-500 line-through text-xs">{{ "{:,.0f}".format(product.old_price) }} ₸</span>
+                        <span class="text-red-400 font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% else %}
+                        <span class="text-white font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Categories Strip -->
+{% if categories %}
+<section class="py-16 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-10">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Категории</h2>
+            <div class="w-16 h-0.5 bg-gold mt-3"></div>
+        </div>
+        <div class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4">
+            {% for cat in categories %}
+            <a href="/catalog?category={{ cat.slug }}" class="group flex-shrink-0">
+                <div class="relative w-40 h-52 sm:w-48 sm:h-60 rounded-lg overflow-hidden bg-[#1a1a1a] border border-white/5 hover:border-gold/30 transition-all">
+                    {% if cat.image_url %}
+                    <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-dark-600 to-dark-700"></div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 right-4">
+                        <h3 class="text-white font-semibold text-sm uppercase tracking-wider">{{ cat.name }}</h3>
+                        {% if cat.product_count is defined %}
+                        <p class="text-gray-400 text-xs mt-1">{{ cat.product_count }} товаров</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- New Arrivals -->
+{% if new_products %}
+<section class="py-20 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Новинки</h2>
+                <div class="w-16 h-0.5 bg-gold mt-3"></div>
+            </div>
+            <a href="/catalog?sort=newest" class="text-sm text-gray-500 hover:text-gold transition-colors tracking-wider uppercase flex items-center space-x-2">
+                <span>Все новинки</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {% for product in new_products %}
+            <a href="/product/{{ product.slug }}" class="product-card group">
+                <div class="relative bg-[#1a1a1a] rounded-lg overflow-hidden">
+                    <div class="absolute top-3 left-3 z-10 flex flex-col space-y-2">
+                        <span class="px-2.5 py-1 bg-emerald-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">Новинка</span>
+                        {% if product.old_price and product.old_price > product.price %}
+                        <span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">Sale</span>
+                        {% endif %}
+                    </div>
+                    <div class="aspect-[3/4] overflow-hidden bg-dark-600">
+                        {% if product.images %}
+                        <img src="{{ product.images[0].image_path if product.images else '' }}" alt="{{ product.name }}" class="product-image w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-700">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3 px-1">
+                    <p class="text-[11px] text-gold/70 uppercase tracking-widest font-medium">{{ product.brand }}</p>
+                    <h3 class="text-sm text-gray-200 font-medium mt-1 truncate group-hover:text-white transition-colors">{{ product.name }}</h3>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if product.old_price and product.old_price > product.price %}
+                        <span class="text-gray-500 line-through text-xs">{{ "{:,.0f}".format(product.old_price) }} ₸</span>
+                        <span class="text-red-400 font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% else %}
+                        <span class="text-white font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Sale Section -->
+{% if sale_products %}
+<section class="py-20 px-4 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-red-900/5 via-transparent to-transparent"></div>
+    <div class="max-w-7xl mx-auto relative z-10">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+                    <span class="text-red-400">Sale</span>
+                </h2>
+                <div class="w-16 h-0.5 bg-red-500 mt-3"></div>
+            </div>
+            <a href="/catalog?on_sale=1" class="text-sm text-gray-500 hover:text-red-400 transition-colors tracking-wider uppercase flex items-center space-x-2">
+                <span>Все скидки</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {% for product in sale_products %}
+            <a href="/product/{{ product.slug }}" class="product-card group">
+                <div class="relative bg-[#1a1a1a] rounded-lg overflow-hidden border border-red-500/10">
+                    <div class="absolute top-3 left-3 z-10">
+                        <span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">
+                            {% if product.old_price and product.old_price > 0 %}
+                            -{{ ((product.old_price - product.price) / product.old_price * 100) | int }}%
+                            {% else %}
+                            Sale
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="aspect-[3/4] overflow-hidden bg-dark-600">
+                        {% if product.images %}
+                        <img src="{{ product.images[0].image_path if product.images else '' }}" alt="{{ product.name }}" class="product-image w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-700">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mt-3 px-1">
+                    <p class="text-[11px] text-gold/70 uppercase tracking-widest font-medium">{{ product.brand }}</p>
+                    <h3 class="text-sm text-gray-200 font-medium mt-1 truncate group-hover:text-white transition-colors">{{ product.name }}</h3>
+                    <div class="mt-2 flex items-center space-x-2">
+                        <span class="text-gray-500 line-through text-xs">{{ "{:,.0f}".format(product.old_price) }} ₸</span>
+                        <span class="text-red-400 font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Promo Banners -->
+{% if banners %}
+<section class="py-16 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for banner in banners %}
+            <a href="{{ banner.link or '#' }}" class="group relative block h-64 md:h-80 rounded-xl overflow-hidden">
+                {% if banner.image_url %}
+                <img src="{{ banner.image_url }}" alt="{{ banner.title | default('') }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-dark-600 to-dark-700"></div>
+                {% endif %}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                {% if banner.title %}
+                <div class="absolute bottom-6 left-6 right-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">{{ banner.title }}</h3>
+                    {% if banner.subtitle %}
+                    <p class="text-gray-300 text-sm">{{ banner.subtitle }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- About / USP Strip -->
+<section class="py-20 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="glass rounded-2xl p-10 md:p-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Почему выбирают нас</h2>
+                <div class="w-16 h-0.5 bg-gold mx-auto"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- USP 1 -->
+                <div class="text-center group">
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                        <svg class="w-7 h-7 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Оригинал 100%</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Гарантируем подлинность каждого товара. Работаем только с официальными поставщиками.</p>
+                </div>
+                <!-- USP 2 -->
+                <div class="text-center group">
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                        <svg class="w-7 h-7 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Быстрая доставка</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Отправляем заказы в день оформления. Доставка по всему Казахстану.</p>
+                </div>
+                <!-- USP 3 -->
+                <div class="text-center group">
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                        <svg class="w-7 h-7 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Безопасная оплата</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Принимаем Kaspi, карты Visa/Mastercard. Оплата при получении.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

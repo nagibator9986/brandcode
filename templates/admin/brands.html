@@ -1,0 +1,132 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_title %}Бренды{% endblock %}
+{% block admin_title_header %}Бренды{% endblock %}
+{% block admin_content %}
+
+<div class="max-w-4xl">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-bold">Управление брендами</h2>
+    </div>
+
+    <!-- Add Brand -->
+    <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4" id="formTitle">Добавить бренд</h3>
+        <form id="brandForm" action="/admin/brands/add" method="POST" class="flex flex-col sm:flex-row gap-4">
+            <input type="hidden" name="brand_id" id="editBrandId" value="">
+            <div class="flex-1">
+                <input type="text" name="name" id="brandName" required placeholder="Название бренда"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="flex-1">
+                <input type="text" name="logo_url" id="brandLogoUrl" placeholder="URL логотипа (необязательно)"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="sm:w-32">
+                <input type="number" name="sort_order" id="brandSortOrder" placeholder="Порядок" value="0"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="flex space-x-2">
+                <button type="submit" class="bg-[#d4a853] hover:bg-[#c8a04a] text-black font-semibold px-6 py-2.5 rounded-lg transition-all text-sm">
+                    Сохранить
+                </button>
+                <button type="button" id="cancelEdit" onclick="resetForm()" class="hidden bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2.5 rounded-lg transition-all text-sm">
+                    Отмена
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Brands List -->
+    <div class="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-white/10">
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Название</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Логотип</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Порядок</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Статус</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Товаров</th>
+                    <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Действия</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% if brands %}
+                {% for brand in brands %}
+                <tr class="hover:bg-white/[0.02] transition-colors" id="brand-row-{{ brand.id }}">
+                    <td class="px-6 py-4 text-sm font-medium text-white">{{ brand.name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        {% if brand.logo_url %}
+                        <img src="{{ brand.logo_url }}" alt="{{ brand.name }}" class="w-8 h-8 object-contain rounded">
+                        {% else %}
+                        <span class="text-gray-600">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-400">{{ brand.sort_order | default(0) }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        {% if brand.is_active %}
+                        <span class="px-2 py-1 bg-green-500/10 text-green-400 rounded text-xs">Активен</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-red-500/10 text-red-400 rounded text-xs">Неактивен</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-400">{{ brand.products_count | default(0) }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button onclick="editBrand('{{ brand.id }}', '{{ brand.name }}', '{{ brand.logo_url or '' }}', {{ brand.sort_order | default(0) }})"
+                                    class="p-2 text-gray-400 hover:text-[#d4a853] hover:bg-[#d4a853]/10 rounded-lg transition-all" title="Редактировать">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <form action="/admin/brands/delete/{{ brand.id }}" method="POST" onsubmit="return confirm('Удалить бренд {{ brand.name }}?')">
+                                <button type="submit" class="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all" title="Удалить">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-600">Брендов пока нет</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+function editBrand(id, name, logoUrl, sortOrder) {
+    document.getElementById('editBrandId').value = id;
+    document.getElementById('brandName').value = name;
+    document.getElementById('brandLogoUrl').value = logoUrl;
+    document.getElementById('brandSortOrder').value = sortOrder;
+    document.getElementById('formTitle').textContent = 'Редактировать бренд';
+    document.getElementById('cancelEdit').classList.remove('hidden');
+    document.getElementById('brandForm').action = '/admin/brands/edit/' + id;
+    document.getElementById('brandName').focus();
+    const row = document.getElementById('brand-row-' + id);
+    if (row) {
+        row.classList.add('bg-[#d4a853]/5');
+    }
+}
+
+function resetForm() {
+    document.getElementById('editBrandId').value = '';
+    document.getElementById('brandName').value = '';
+    document.getElementById('brandLogoUrl').value = '';
+    document.getElementById('brandSortOrder').value = '0';
+    document.getElementById('formTitle').textContent = 'Добавить бренд';
+    document.getElementById('cancelEdit').classList.add('hidden');
+    document.getElementById('brandForm').action = '/admin/brands/add';
+    document.querySelectorAll('[id^="brand-row-"]').forEach(r => r.classList.remove('bg-[#d4a853]/5'));
+}
+</script>
+{% endblock %}

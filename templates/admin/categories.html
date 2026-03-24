@@ -1,0 +1,144 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_title %}Категории{% endblock %}
+{% block admin_content %}
+
+<div class="max-w-4xl">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-bold">Управление категориями</h2>
+    </div>
+
+    <!-- Add Category -->
+    <div class="bg-[#1a1a1a] rounded-xl border border-white/5 p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4" id="formTitle">Добавить категорию</h3>
+        <form id="categoryForm" action="/admin/categories/add" method="POST" class="flex flex-col sm:flex-row gap-4">
+            <input type="hidden" name="category_id" id="editCategoryId" value="">
+            <div class="flex-1">
+                <input type="text" name="name" id="categoryName" required placeholder="Название категории"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="flex-1">
+                <input type="text" name="slug" id="categorySlug" placeholder="slug (авто)"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="flex-1">
+                <input type="url" name="image_url" id="categoryImageUrl" placeholder="URL изображения (Unsplash)"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="sm:w-32">
+                <input type="number" name="sort_order" id="categorySortOrder" placeholder="Порядок" value="0"
+                       class="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 text-sm">
+            </div>
+            <div class="flex space-x-2">
+                <button type="submit" class="bg-[#d4a853] hover:bg-[#c8a04a] text-black font-semibold px-6 py-2.5 rounded-lg transition-all text-sm">
+                    Сохранить
+                </button>
+                <button type="button" id="cancelEdit" onclick="resetForm()" class="hidden bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2.5 rounded-lg transition-all text-sm">
+                    Отмена
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Categories List -->
+    <div class="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-white/10">
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Фото</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Название</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Slug</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Порядок</th>
+                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Товаров</th>
+                    <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">Действия</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% if categories %}
+                {% for cat in categories %}
+                <tr class="hover:bg-white/[0.02] transition-colors" id="cat-row-{{ cat.id }}">
+                    <td class="px-6 py-4">
+                        {% if cat.image_url %}
+                        <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="w-12 h-12 rounded-lg object-cover border border-white/10">
+                        {% else %}
+                        <div class="w-12 h-12 rounded-lg bg-dark-600 flex items-center justify-center text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-white">{{ cat.name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ cat.slug }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-400">{{ cat.sort_order | default(0) }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-400">{{ cat.products_count | default(0) }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button onclick="editCategory('{{ cat.id }}', '{{ cat.name }}', '{{ cat.slug }}', {{ cat.sort_order | default(0) }}, '{{ cat.image_url | default('') }}')"
+                                    class="p-2 text-gray-400 hover:text-[#d4a853] hover:bg-[#d4a853]/10 rounded-lg transition-all" title="Редактировать">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <form action="/admin/categories/delete/{{ cat.id }}" method="POST" onsubmit="return confirm('Удалить категорию {{ cat.name }}?')">
+                                <button type="submit" class="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all" title="Удалить">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-600">Категорий пока нет</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+function editCategory(id, name, slug, sortOrder, imageUrl) {
+    document.getElementById('editCategoryId').value = id;
+    document.getElementById('categoryName').value = name;
+    document.getElementById('categorySlug').value = slug;
+    document.getElementById('categorySortOrder').value = sortOrder;
+    document.getElementById('categoryImageUrl').value = imageUrl || '';
+    document.getElementById('formTitle').textContent = 'Редактировать категорию';
+    document.getElementById('cancelEdit').classList.remove('hidden');
+    document.getElementById('categoryForm').action = '/admin/categories/edit/' + id;
+    document.getElementById('categoryName').focus();
+    const row = document.getElementById('cat-row-' + id);
+    if (row) {
+        row.classList.add('bg-[#d4a853]/5');
+    }
+}
+
+function resetForm() {
+    document.getElementById('editCategoryId').value = '';
+    document.getElementById('categoryName').value = '';
+    document.getElementById('categorySlug').value = '';
+    document.getElementById('categorySortOrder').value = '0';
+    document.getElementById('categoryImageUrl').value = '';
+    document.getElementById('formTitle').textContent = 'Добавить категорию';
+    document.getElementById('cancelEdit').classList.add('hidden');
+    document.getElementById('categoryForm').action = '/admin/categories/add';
+    document.querySelectorAll('[id^="cat-row-"]').forEach(r => r.classList.remove('bg-[#d4a853]/5'));
+}
+
+// Auto slug
+document.getElementById('categoryName').addEventListener('input', function() {
+    const slugField = document.getElementById('categorySlug');
+    if (!slugField.dataset.manual) {
+        slugField.value = transliterateSlug(this.value);
+    }
+});
+document.getElementById('categorySlug').addEventListener('input', function() {
+    this.dataset.manual = '1';
+});
+</script>
+{% endblock %}

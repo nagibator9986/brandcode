@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% block title %}Каталог — {{ site_settings.site_name | default('BRANDCODE') }}{% endblock %}
+
+{% block content %}
+
+<section class="py-10 px-4">
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tight">
+                {% if request.args.get('sale') or request.args.get('on_sale') %}
+                <span class="text-red-400">Sale</span>
+                {% elif request.args.get('category') %}
+                {{ current_category.name if current_category else 'Каталог' }}
+                {% elif request.args.get('sort') == 'newest' %}
+                Новинки
+                {% else %}
+                Каталог
+                {% endif %}
+            </h1>
+            <div class="flex items-center space-x-2 mt-2">
+                <div class="w-12 h-0.5 bg-gold"></div>
+                {% if total_count is defined %}
+                <span class="text-sm text-gray-500">{{ total_count }} {{ 'товар' if total_count == 1 else ('товара' if total_count < 5 else 'товаров') }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <form id="filterForm" action="/catalog" method="GET" class="mb-10">
+            <!-- Mobile Filter Toggle -->
+            <button type="button" id="filterToggle" class="lg:hidden w-full flex items-center justify-between px-5 py-3 bg-[#1a1a1a] rounded-lg border border-white/5 mb-4">
+                <span class="text-sm text-gray-300 uppercase tracking-wider font-medium">Фильтры</span>
+                <svg id="filterIcon" class="w-5 h-5 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div id="filterPanel" class="hidden lg:block">
+                <div class="glass rounded-xl p-5 space-y-5">
+                    <!-- Category Pills -->
+                    {% if categories %}
+                    <div>
+                        <label class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-3 block">Категория</label>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="/catalog" class="px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider transition-all
+                                {% if not request.args.get('category') %}bg-gold text-black{% else %}bg-dark-600 text-gray-400 hover:bg-dark-500 hover:text-white{% endif %}">
+                                Все
+                            </a>
+                            {% for cat in categories %}
+                            <a href="/catalog?category={{ cat.slug }}{% if request.args.get('gender') %}&gender={{ request.args.get('gender') }}{% endif %}{% if request.args.get('sort') %}&sort={{ request.args.get('sort') }}{% endif %}"
+                               class="px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider transition-all
+                                {% if request.args.get('category') == cat.slug %}bg-gold text-black{% else %}bg-dark-600 text-gray-400 hover:bg-dark-500 hover:text-white{% endif %}">
+                                {{ cat.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <!-- Gender -->
+                        <div>
+                            <label class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Пол</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="submit" name="gender" value="" class="px-3 py-1.5 rounded text-xs font-medium transition-all
+                                    {% if not request.args.get('gender') %}bg-gold/20 text-gold border border-gold/30{% else %}bg-dark-600 text-gray-400 hover:text-white{% endif %}">
+                                    Все
+                                </button>
+                                <button type="submit" name="gender" value="men" class="px-3 py-1.5 rounded text-xs font-medium transition-all
+                                    {% if request.args.get('gender') == 'men' %}bg-gold/20 text-gold border border-gold/30{% else %}bg-dark-600 text-gray-400 hover:text-white{% endif %}">
+                                    Мужское
+                                </button>
+                                <button type="submit" name="gender" value="women" class="px-3 py-1.5 rounded text-xs font-medium transition-all
+                                    {% if request.args.get('gender') == 'women' %}bg-gold/20 text-gold border border-gold/30{% else %}bg-dark-600 text-gray-400 hover:text-white{% endif %}">
+                                    Женское
+                                </button>
+                                <button type="submit" name="gender" value="unisex" class="px-3 py-1.5 rounded text-xs font-medium transition-all
+                                    {% if request.args.get('gender') == 'unisex' %}bg-gold/20 text-gold border border-gold/30{% else %}bg-dark-600 text-gray-400 hover:text-white{% endif %}">
+                                    Унисекс
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div>
+                            <label class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Цена</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" name="min_price" value="{{ filters.min_price or '' }}" placeholder="От" class="w-full bg-dark-600 border border-white/5 rounded px-3 py-1.5 text-xs text-white placeholder-gray-600">
+                                <span class="text-gray-600">—</span>
+                                <input type="number" name="max_price" value="{{ filters.max_price or '' }}" placeholder="До" class="w-full bg-dark-600 border border-white/5 rounded px-3 py-1.5 text-xs text-white placeholder-gray-600">
+                            </div>
+                        </div>
+
+                        <!-- Brand -->
+                        <div>
+                            <label class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Бренд</label>
+                            <select name="brand" class="w-full bg-dark-600 border border-white/5 rounded px-3 py-1.5 text-xs text-white appearance-none cursor-pointer">
+                                <option value="">Все бренды</option>
+                                {% if brands %}
+                                {% for brand in brands %}
+                                <option value="{{ brand }}" {% if request.args.get('brand') == brand %}selected{% endif %}>{{ brand }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <!-- Sort -->
+                        <div>
+                            <label class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Сортировка</label>
+                            <select name="sort" onchange="this.form.submit()" class="w-full bg-dark-600 border border-white/5 rounded px-3 py-1.5 text-xs text-white appearance-none cursor-pointer">
+                                <option value="popular" {% if request.args.get('sort', 'popular') == 'popular' %}selected{% endif %}>По популярности</option>
+                                <option value="price_asc" {% if request.args.get('sort') == 'price_asc' %}selected{% endif %}>Сначала дешёвые</option>
+                                <option value="price_desc" {% if request.args.get('sort') == 'price_desc' %}selected{% endif %}>Сначала дорогие</option>
+                                <option value="newest" {% if request.args.get('sort') == 'newest' %}selected{% endif %}>Новинки</option>
+                            </select>
+                        </div>
+
+                        <!-- Search -->
+                        <div>
+                            <label class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Поиск</label>
+                            <div class="relative">
+                                <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="Название или бренд..." class="w-full bg-dark-600 border border-white/5 rounded px-3 py-1.5 text-xs text-white placeholder-gray-600 pr-8">
+                                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gold">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Apply Filters Button (mobile) -->
+                    <div class="lg:hidden pt-2">
+                        <button type="submit" class="w-full py-3 bg-gold text-black text-sm font-semibold uppercase tracking-wider rounded-lg hover:bg-gold-light transition-colors">
+                            Применить фильтры
+                        </button>
+                    </div>
+
+                    <!-- Hidden fields to preserve filters -->
+                    {% if filters.category %}
+                    <input type="hidden" name="category" value="{{ filters.category }}">
+                    {% endif %}
+                    {% if filters.sale %}
+                    <input type="hidden" name="sale" value="1">
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
+        <!-- Product Grid -->
+        {% if products %}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" id="productGrid">
+            {% for product in products %}
+            <div class="product-card group animate-fade-in" style="animation-delay: {{ loop.index0 * 50 }}ms;">
+                <a href="/product/{{ product.slug }}" class="block">
+                    <div class="relative bg-[#1a1a1a] rounded-lg overflow-hidden border border-white/[0.03] hover:border-white/[0.08] transition-all">
+                        <!-- Badges -->
+                        <div class="absolute top-3 left-3 z-10 flex flex-col space-y-2">
+                            {% if product.is_new %}
+                            <span class="px-2.5 py-1 bg-emerald-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">Новинка</span>
+                            {% endif %}
+                            {% if product.old_price and product.old_price > product.price %}
+                            <span class="px-2.5 py-1 bg-red-500/90 text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm">
+                                -{{ ((product.old_price - product.price) / product.old_price * 100) | int }}%
+                            </span>
+                            {% endif %}
+                            {% if product.is_out_of_stock is defined and product.is_out_of_stock %}
+                            <span class="px-2.5 py-1 bg-gray-800/90 text-gray-400 text-[10px] font-semibold uppercase tracking-wider rounded-sm">Нет в наличии</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Wishlist Button -->
+                        <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ product.id }})" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-gray-400 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                        </button>
+
+                        <!-- Image -->
+                        <div class="aspect-[3/4] overflow-hidden bg-dark-600 {% if product.is_out_of_stock is defined and product.is_out_of_stock %}opacity-50{% endif %}">
+                            {% if product.images %}
+                            <img src="{{ product.images[0].image_path if product.images else '' }}" alt="{{ product.name }}" class="product-image w-full h-full object-cover" loading="lazy">
+                            {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-gray-700">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Quick Add to Cart -->
+                        {% if not (product.is_out_of_stock is defined and product.is_out_of_stock) %}
+                        <div class="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                            <button onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart({{ product.id }})" class="w-full py-2.5 bg-gold/90 backdrop-blur-sm text-black text-xs font-semibold uppercase tracking-wider rounded hover:bg-gold transition-colors">
+                                В корзину
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                <a href="/product/{{ product.slug }}" class="block mt-3 px-1">
+                    <p class="text-[11px] text-gold/70 uppercase tracking-widest font-medium">{{ product.brand }}</p>
+                    <h3 class="text-sm text-gray-200 font-medium mt-1 truncate group-hover:text-white transition-colors">{{ product.name }}</h3>
+                    <div class="mt-2 flex items-center space-x-2">
+                        {% if product.old_price and product.old_price > product.price %}
+                        <span class="text-gray-500 line-through text-xs">{{ "{:,.0f}".format(product.old_price) }} ₸</span>
+                        <span class="text-red-400 font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% else %}
+                        <span class="text-white font-semibold text-sm">{{ "{:,.0f}".format(product.price) }} ₸</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div class="mt-16 flex items-center justify-center space-x-2">
+            {% if page > 1 %}
+            <a href="?page={{ page - 1 }}{% if filters.category %}&category={{ filters.category }}{% endif %}{% if filters.brand %}&brand={{ filters.brand }}{% endif %}{% if filters.gender %}&gender={{ filters.gender }}{% endif %}{% if filters.min_price %}&min_price={{ filters.min_price }}{% endif %}{% if filters.max_price %}&max_price={{ filters.max_price }}{% endif %}{% if filters.sort %}&sort={{ filters.sort }}{% endif %}{% if filters.q %}&q={{ filters.q }}{% endif %}{% if filters.sale %}&sale=1{% endif %}" class="px-4 py-2.5 bg-[#1a1a1a] border border-white/5 rounded-lg text-sm text-gray-400 hover:text-white hover:border-white/10 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </a>
+            {% endif %}
+
+            {% for page_num in range(1, total_pages + 1) %}
+            <a href="?page={{ page_num }}{% if filters.category %}&category={{ filters.category }}{% endif %}{% if filters.brand %}&brand={{ filters.brand }}{% endif %}{% if filters.gender %}&gender={{ filters.gender }}{% endif %}{% if filters.min_price %}&min_price={{ filters.min_price }}{% endif %}{% if filters.max_price %}&max_price={{ filters.max_price }}{% endif %}{% if filters.sort %}&sort={{ filters.sort }}{% endif %}{% if filters.q %}&q={{ filters.q }}{% endif %}{% if filters.sale %}&sale=1{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-all
+                {% if page_num == page %}bg-gold text-black{% else %}bg-[#1a1a1a] border border-white/5 text-gray-400 hover:text-white hover:border-white/10{% endif %}">
+                {{ page_num }}
+            </a>
+            {% endfor %}
+
+            {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}{% if filters.category %}&category={{ filters.category }}{% endif %}{% if filters.brand %}&brand={{ filters.brand }}{% endif %}{% if filters.gender %}&gender={{ filters.gender }}{% endif %}{% if filters.min_price %}&min_price={{ filters.min_price }}{% endif %}{% if filters.max_price %}&max_price={{ filters.max_price }}{% endif %}{% if filters.sort %}&sort={{ filters.sort }}{% endif %}{% if filters.q %}&q={{ filters.q }}{% endif %}{% if filters.sale %}&sale=1{% endif %}" class="px-4 py-2.5 bg-[#1a1a1a] border border-white/5 rounded-lg text-sm text-gray-400 hover:text-white hover:border-white/10 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-32">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-dark-700 flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-300 mb-2">Товары не найдены</h3>
+            <p class="text-gray-500 text-sm mb-8">Попробуйте изменить параметры поиска или фильтры</p>
+            <a href="/catalog" class="inline-flex items-center px-6 py-3 bg-gold text-black text-sm font-semibold uppercase tracking-wider rounded-lg hover:bg-gold-light transition-colors">
+                Сбросить фильтры
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Filter toggle for mobile
+    const filterToggle = document.getElementById('filterToggle');
+    const filterPanel = document.getElementById('filterPanel');
+    const filterIcon = document.getElementById('filterIcon');
+    if (filterToggle) {
+        filterToggle.addEventListener('click', () => {
+            filterPanel.classList.toggle('hidden');
+            filterIcon.classList.toggle('rotate-180');
+        });
+    }
+
+    function quickAddToCart(productId) {
+        // Redirect to product page to select size
+        const card = event.target.closest('.product-card');
+        const link = card ? card.querySelector('a[href^="/product/"]') : null;
+        if (link) {
+            window.location.href = link.getAttribute('href');
+        } else {
+            window.location.href = '/catalog';
+        }
+    }
+</script>
+{% endblock %}
